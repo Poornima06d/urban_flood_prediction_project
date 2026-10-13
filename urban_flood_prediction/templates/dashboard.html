@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<h1>Urban Flood Monitoring Dashboard</h1>
+
+<p>
+  Monitor current weather conditions and predict flood risk for selected
+  Karnataka districts or your current browser location.
+</p>
+
+<!-- Flood Detection Options -->
+
+<div class="card">
+  <h2>Flood Detection</h2>
+
+  <div class="detection-options">
+
+```
+<div class="location-option">
+  <h3>📍 Current Location</h3>
+  <p>
+    Use your browser location to detect the nearest supported district
+    and generate the flood-risk prediction.
+  </p>
+
+  <button class="btn" onclick="useCurrentLocation()">
+    Use Current Location
+  </button>
+</div>
+
+<div class="location-option">
+  <h3>🗺️ Selected Location</h3>
+  <p>
+    Select a supported Karnataka district manually.
+  </p>
+
+  <label>
+    District
+    <select id="district">
+      {% for d in districts %}
+        <option value="{{ d }}">{{ d }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button class="btn" onclick="loadSelectedDistrict()">
+    Check Selected District
+  </button>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- Current Location Status -->
+
+<div id="locationStatus" class="card result">
+  Select a detection method to begin flood prediction.
+</div>
+
+<!-- Weather Cards -->
+
+<div id="weatherCards" class="grid four"></div>
+
+<!-- Prediction Result -->
+
+<div id="predictionBox" class="card result">
+  Flood prediction results will appear here.
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+const SUPPORTED_DISTRICTS = [
+  "Belagavi",
+  "Bagalkot",
+  "Shivamogga",
+  "Chikkamagaluru",
+  "Uttara Kannada"
+];
+
+
+/*
+ * ---------------------------------------------------------
+ * SELECTED DISTRICT
+ * ---------------------------------------------------------
+ */
+
+async function loadSelectedDistrict() {
+
+  const district = document.getElementById("district").value;
+
+  document.getElementById("locationStatus").innerHTML =
+    `<p>Checking flood risk for <strong>${district}</strong>...</p>`;
+
+  await loadDashboardForDistrict(district);
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * CURRENT BROWSER LOCATION
+ * ---------------------------------------------------------
+ */
+
+function useCurrentLocation() {
+
+  const statusBox = document.getElementById("locationStatus");
+
+  if (!navigator.geolocation) {
+
+    statusBox.innerHTML =
+      `<p class="error">
+        Geolocation is not supported by this browser.
+      </p>`;
+
+    return;
+  }
+
+  statusBox.innerHTML =
+    `<p>Requesting your browser location...</p>`;
+
+  navigator.geolocation.getCurrentPosition(
+
+    async function(position) {
+
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      statusBox.innerHTML = `
+        <p>
+          Location detected:
+          <strong>${latitude.toFixed(4)}, ${longitude.toFixed(4)}</strong>
+        </p>
+        <p>Finding the supported Karnataka district...</p>
+      `;
+
+      /*
+       * For now, determine the nearest supported district
+       * using predefined district coordinates.
+       */
+
+      const district = findNearestDistrict(latitude, longitude);
+
+      statusBox.innerHTML = `
+        <p>
+          Detected district:
+          <strong>${district}</strong>
+        </p>
+        <p>Loading weather and flood prediction...</p>
+      `;
+
+      /*
+       * Select the detected district in the dropdown.
+       */
+
+      const dropdown = document.getElementById("district");
+
+      if ([...dropdown.options].some(option => option.value === district)) {
+        dropdown.value = district;
+      }
+
+      await loadDashboardForDistrict(district);
+    },
+
+    function(error) {
+
+      let message = "Unable to detect your location.";
+
+      if (error.code === error.PERMISSION_DENIED) {
+        message =
+          "Location permission was denied. Please allow location access in your browser.";
+      }
+      else if (error.code === error.POSITION_UNAVAILABLE) {
+        message =
+          "Your location is currently unavailable.";
+      }
+      else if (error.code === error.TIMEOUT) {
+        message =
+          "Location request timed out. Please try again.";
+      }
+
+      statusBox.innerHTML =
+        `<p class="error">${message}</p>`;
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 300000
+    }
+  );
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * FIND NEAREST SUPPORTED DISTRICT
+ * ---------------------------------------------------------
+ *
+ * Approximate coordinates are used only to select one of
+ * the five supported districts.
+ */
+
+function findNearestDistrict(latitude, longitude) {
+
+  const districtCoordinates = {
+
+    "Belagavi": {
+      latitude: 15.8497,
+      longitude: 74.4977
+    },
+
+    "Bagalkot": {
+      latitude: 16.1691,
+      longitude: 75.6615
+    },
+
+    "Shivamogga": {
+      latitude: 13.9299,
+      longitude: 75.5681
+    },
+
+    "Chikkamagaluru": {
+      latitude: 13.3153,
+      longitude: 75.7754
+    },
+
+    "Uttara Kannada": {
+      latitude: 14.7965,
+      longitude: 74.6866
+    }
+
+  };
+
+  let nearestDistrict = null;
+  let minimumDistance = Infinity;
+
+  for (const district of SUPPORTED_DISTRICTS) {
+
+    const coordinates = districtCoordinates[district];
+
+    const distance = calculateDistance(
+      latitude,
+      longitude,
+      coordinates.latitude,
+      coordinates.longitude
+    );
+
+    if (distance < minimumDistance) {
+      minimumDistance = distance;
+      nearestDistrict = district;
+    }
+  }
+
+  return nearestDistrict;
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * HAVERSINE DISTANCE
+ * ---------------------------------------------------------
+ */
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+
+  const earthRadius = 6371;
+
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) *
+    Math.cos(toRadians(lat2)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+
+  const c =
+    2 * Math.atan2(
+      Math.sqrt(a),
+      Math.sqrt(1 - a)
+    );
+
+  return earthRadius * c;
+}
+
+
+function toRadians(degrees) {
+  return degrees * Math.PI / 180;
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * LOAD WEATHER + FLOOD PREDICTION
+ * ---------------------------------------------------------
+ */
+
+async function loadDashboardForDistrict(district) {
+
+  const weatherCards = document.getElementById("weatherCards");
+  const predictionBox = document.getElementById("predictionBox");
+
+  weatherCards.innerHTML =
+    `<div class="card">
+      <strong>Loading weather...</strong>
+    </div>`;
+
+  predictionBox.innerHTML =
+    `<p>Running XGBoost flood prediction...</p>`;
+
+  try {
+
+    /*
+     * Get current weather.
+     */
+
+    const weatherResponse = await fetch(
+      "/api/weather?district=" +
+      encodeURIComponent(district)
+    );
+
+    const weather = await weatherResponse.json();
+
+    if (weather.error) {
+      throw new Error(weather.error);
+    }
+
+
+    /*
+     * Display weather.
+     */
+
+    weatherCards.innerHTML = `
+
+      <div class="card">
+        <b>Temperature</b>
+        <strong>
+          ${weather.temperature_c ?? "-"} °C
+        </strong>
+      </div>
+
+      <div class="card">
+        <b>Humidity</b>
+        <strong>
+          ${weather.humidity_pct ?? "-"} %
+        </strong>
+      </div>
+
+      <div class="card">
+        <b>Rainfall</b>
+        <strong>
+          ${weather.rainfall_mm ?? 0} mm
+        </strong>
+      </div>
+
+      <div class="card">
+        <b>Condition</b>
+        <strong>
+          ${weather.weather ?? "-"}
+        </strong>
+      </div>
+
+    `;
+
+
+    /*
+     * Run XGBoost prediction.
+     */
+
+    const predictionResponse = await fetch(
+      "/api/predict",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          district: district,
+          weather: weather
+        })
+      }
+    );
+
+    const prediction = await predictionResponse.json();
+
+    if (prediction.error) {
+      throw new Error(prediction.error);
+    }
+
+
+    /*
+     * Display prediction.
+     */
+
+    predictionBox.innerHTML = `
+
+      <h2>${prediction.risk_level} Flood Risk</h2>
+
+      <div class="prob">
+        ${prediction.probability}%
+      </div>
+
+      <p>
+        <strong>District:</strong>
+        ${prediction.district}
+      </p>
+
+      <p>
+        <strong>Model:</strong>
+        ${prediction.model ?? "XGBoost V5"}
+      </p>
+
+      <p>
+        <strong>Prediction Threshold:</strong>
+        ${prediction.threshold ?? 0.50}
+      </p>
+
+      <div class="alert ${prediction.risk_level.toLowerCase()}">
+        ${prediction.warning}
+      </div>
+
+    `;
+
+  }
+  catch (error) {
+
+    weatherCards.innerHTML = "";
+
+    predictionBox.innerHTML = `
+      <p class="error">
+        ${error.message}
+      </p>
+    `;
+  }
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * BACKWARD COMPATIBILITY
+ * ---------------------------------------------------------
+ *
+ * Keeps the old button/function usable if another page
+ * calls loadDashboard().
+ */
+
+async function loadDashboard() {
+
+  const district =
+    document.getElementById("district").value;
+
+  await loadDashboardForDistrict(district);
+}
+
+</script>
+
+{% endblock %}

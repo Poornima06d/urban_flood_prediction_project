@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Flood Prediction{% endblock %}
+{% block content %}
+<h1>24-Hour Flood Prediction</h1>
+<div class="card controls">
+  <select id="district">{% for d in districts %}<option>{{d}}</option>{% endfor %}</select>
+  <button class="btn" onclick="predict()">Predict Risk</button>
+</div>
+<div id="result" class="card result">Prediction will appear here.</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function predict(){
+ const district=document.getElementById("district").value;
+ const r=await fetch("/api/predict", {
+   method:"POST", headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({district})
+ }).then(x=>x.json());
+ document.getElementById("result").innerHTML = r.error
+   ? `<p class="error">${r.error}</p>`
+   : `<h2>${r.risk_level} Risk</h2><div class="prob">${r.probability}%</div><p>${r.warning}</p>`;
+}
+</script>
+{% endblock %}

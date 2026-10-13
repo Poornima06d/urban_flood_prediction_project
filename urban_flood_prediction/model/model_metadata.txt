@@ -1,0 +1,13 @@
+Urban Flood Prediction - XGBoost
+Prediction Horizon: 24 Hours
+Training: 1967-2018
+Testing: 2019-2023
+
+Training Rows: 94890
+Testing Rows: 9125
+ROC-AUC: 0.5337
+PR-AUC: 0.0300
+Warning Threshold: 0.35
+Warning Precision: 0.0397
+Warning Recall: 0.3286
+Warning F1: 0.0708

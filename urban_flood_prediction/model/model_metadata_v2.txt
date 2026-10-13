@@ -1,0 +1,48 @@
+Urban Flood Prediction - XGBoost V2
+============================================================
+
+Target: Flood_24h
+Prediction horizon: 24 hours
+
+Training period: 1967-2018
+Testing period: 2019-2023
+
+Training rows: 94890
+Testing rows: 9125
+
+Number of features: 22
+
+Features:
+- Rainfall_mm
+- Rain_lag1
+- Rain_2d_prev
+- Rain_3d_prev
+- Rain_5d_prev
+- Rain_7d_prev
+- Rain_10d_prev
+- Rain_15d_prev
+- Rain_30d_prev
+- Rain_max_3d_prev
+- Rain_max_7d_prev
+- Rain_max_15d_prev
+- Rain_max_30d_prev
+- Rain_nonzero_7d
+- Rain_nonzero_15d
+- Rain_nonzero_30d
+- Rain_7d_avg_prev
+- Rain_30d_avg_prev
+- Rain_trend
+- Month
+- DayOfYear
+- District_Code
+
+scale_pos_weight: 95.5310
+Selected threshold: 0.15
+
+Performance:
+Accuracy: 0.8231
+Precision: 0.0211
+Recall: 0.1476
+F1: 0.0370
+ROC-AUC: 0.4982
+PR-AUC: 0.0223

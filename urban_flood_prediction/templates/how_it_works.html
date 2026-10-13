@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}How It Works{% endblock %}
+{% block content %}
+<h1>How the System Works</h1>
+<div class="flow">
+  <div>Historical Rainfall + Flood Events</div><span>↓</span>
+  <div>Data Preprocessing</div><span>↓</span>
+  <div>Feature Engineering</div><span>↓</span>
+  <div>XGBoost Training & Testing</div><span>↓</span>
+  <div>Current / Forecast Weather</div><span>↓</span>
+  <div>24-Hour Flood Probability</div><span>↓</span>
+  <div>Low / Medium / High Risk</div><span>↓</span>
+  <div>Alert + Map + Database</div>
+</div>
+{% endblock %}

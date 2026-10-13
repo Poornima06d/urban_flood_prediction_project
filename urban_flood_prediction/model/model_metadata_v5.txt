@@ -1,0 +1,25 @@
+Urban Flood Prediction - XGBoost V5
+============================================================
+
+Training period: 1967-2014
+Validation period: 2015-2018
+Final test period: 2019-2023
+
+Number of features: 29
+Selected threshold: 0.5
+
+Accuracy: 0.9243
+Precision: 0.0222
+Recall: 0.3409
+F1 Score: 0.0416
+ROC-AUC: 0.8353
+PR-AUC: 0.0186
+
+District-normalized rainfall features:
+- Rainfall_ratio_district
+- Rain_lag1_ratio_district
+- Rain_7d_ratio_district
+- Rain_30d_ratio_district
+- Rainfall_zscore_district
+- Rain_7d_accum_ratio_district
+- Rain_30d_accum_ratio_district

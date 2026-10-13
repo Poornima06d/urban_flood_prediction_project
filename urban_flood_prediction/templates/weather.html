@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Weather{% endblock %}
+{% block content %}
+<h1>Weather</h1>
+<p>Current operational weather information from the configured Weather API.</p>
+<div class="card controls">
+<select id="district">{% for d in districts %}<option>{{d}}</option>{% endfor %}</select>
+<button class="btn" onclick="getWeather()">Get Weather</button>
+</div>
+<pre id="weather"></pre>
+{% endblock %}
+{% block scripts %}
+<script>
+async function getWeather(){
+ const d=document.getElementById("district").value;
+ const r=await fetch("/api/weather?district="+encodeURIComponent(d)).then(x=>x.json());
+ document.getElementById("weather").textContent=JSON.stringify(r,null,2);
+}
+</script>
+{% endblock %}

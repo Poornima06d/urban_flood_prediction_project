@@ -1,0 +1,60 @@
+URBAN FLOOD PREDICTION - XGBOOST V3
+============================================================
+
+Training period: 1967-01-16 to 2018-12-31
+Testing period: 2019-01-01 to 2023-12-30
+
+Training rows: 94890
+Testing rows: 9125
+
+Training flood samples: 893
+Training non-flood samples: 93997
+scale_pos_weight: 105.2598
+
+MODEL PARAMETERS
+n_estimators: 600
+max_depth: 4
+learning_rate: 0.035
+min_child_weight: 5
+subsample: 0.85
+colsample_bytree: 0.85
+gamma: 0.15
+reg_alpha: 0.2
+reg_lambda: 2.0
+
+PERFORMANCE
+Selected threshold: 0.45
+Accuracy: 0.8997
+Precision: 0.0209
+Recall: 0.4318
+F1 Score: 0.0399
+ROC-AUC: 0.8262
+PR-AUC: 0.0185
+
+Confusion Matrix:
+[[8191  890]
+ [  25   19]]
+
+FEATURES
+- Rainfall_mm
+- Rain_lag1
+- Rain_2d_prev
+- Rain_3d_prev
+- Rain_5d_prev
+- Rain_7d_prev
+- Rain_10d_prev
+- Rain_15d_prev
+- Rain_30d_prev
+- Rain_max_3d_prev
+- Rain_max_7d_prev
+- Rain_max_15d_prev
+- Rain_max_30d_prev
+- Rain_nonzero_7d
+- Rain_nonzero_15d
+- Rain_nonzero_30d
+- Rain_7d_avg_prev
+- Rain_30d_avg_prev
+- Rain_trend
+- Month
+- DayOfYear
+- District_Code

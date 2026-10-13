@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Urban Flood Prediction & Early Warning{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Karnataka • 5 monitored districts • 24-hour warning</p>
+  <h1>Urban Flood Prediction & Early Warning System</h1>
+  <p>Machine-learning based flood-risk prediction using XGBoost, historical rainfall and operational weather information.</p>
+  <div class="actions">
+    <a class="btn" href="/dashboard">Check Flood Risk</a>
+    <a class="btn secondary" href="/map">View Risk Map</a>
+  </div>
+</section>
+<section class="grid three">
+  <div class="card"><h3>Historical Data</h3><p>IMD rainfall and flood-event information are used for model development.</p></div>
+  <div class="card"><h3>XGBoost</h3><p>The model estimates the probability of a flood in the next 24 hours.</p></div>
+  <div class="card"><h3>Early Warning</h3><p>Probability is translated into Low, Medium or High risk for monitoring.</p></div>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Risk Map{% endblock %}
+{% block content %}
+<h1>District Risk Map</h1>
+<p>Interactive Leaflet/OpenStreetMap view for the monitored districts.</p>
+<div id="map"></div>
+{% endblock %}
+{% block scripts %}
+<script>
+const centers = {
+  "Belagavi":[15.8497,74.4977],
+  "Bagalkot":[16.1691,75.6615],
+  "Shivamogga":[13.9299,75.5681],
+  "Chikkamagaluru":[13.3153,75.7754],
+  "Uttara Kannada":[14.7952,74.6869]
+};
+const map=L.map("map").setView([14.5,75.5],7);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors"}).addTo(map);
+fetch("/api/map-data").then(r=>r.json()).then(rows=>{
+  const latest={}; rows.forEach(x=>latest[x.district]=x);
+  Object.entries(centers).forEach(([d,pos])=>{
+    const x=latest[d];
+    L.marker(pos).addTo(map).bindPopup(`<b>${d}</b><br>Risk: ${x?.risk_level ?? "No prediction"}<br>Probability: ${x ? (x.probability*100).toFixed(1)+"%" : "-"}`);
+  });
+});
+</script>
+{% endblock %}

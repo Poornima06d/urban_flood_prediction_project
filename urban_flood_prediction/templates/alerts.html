@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+<h1>Alerts</h1>
+<div class="card"><div id="alerts">Loading...</div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+fetch("/api/alerts").then(r=>r.json()).then(rows=>{
+ document.getElementById("alerts").innerHTML = rows.length ? rows.map(x =>
+ `<div class="alert ${x.risk_level.toLowerCase()}"><b>${x.risk_level}</b> — ${x.district}<br>${x.message}<small>${x.created_at}</small></div>`
+ ).join("") : "No alerts stored yet.";
+});
+</script>
+{% endblock %}
